@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="\" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style media="screen">
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    form {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      box-sizing: border-box;
+      padding: 0.25rem;
+    }
+
+    form input {
+      border: 0;
+      padding: 0.5rem;
+      width: 100%;
+      outline: 0;
+      margin-right: 0.5rem;
+      border-radius: 0.25rem;
+      background: #ccc;
+    }
+
+    form button {
+      width: 6rem;
+      background-color: #1b8c00;
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      border-radius: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    form button:hover {
+      background-color: #166d01;
+    }
+
+    li {
+      padding: 0.5rem;
+    }
+
+    .chat {
+      margin: 0;
+      padding: 0;
+      margin-bottom: 3rem;
+    }
+
+    .chat li:nth-child(odd) {
+      background: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <form>
+      <input type="text" class="msg" placeholder="message">
+      <button>Send</button> <br>
+    </form>
+  </nav>
+
+  <div class="chat_box">
+    <ul class="chat">
+    </ul>
+  </div>
+  <script type="text/javascript">
+    const handler = prompt("Please enter your handler name");
+    const input = document.querySelector(".msg");
+    const form = document.querySelector("form");
+    const message = document.querySelector(".chat");
+    const socket = io.connect('http://localhost:3000');
+
+    function printmsg(data) {
+      const li = document.createElement("li");
+      li.innerHTML = data;
+      message.appendChild(li);
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    form.addEventListener("submit", (event) => {
+
+      event.preventDefault(); // prevents oage reloading
+
+      printmsg("<p><b>" + handler + "</b>" + ":" + input.value + "</p>");
+
+      socket.emit('msg', "<p><b>" + handler + "</b>" + ":" + input.value + "</p>");
+
+      input.value = "";
+      return false;
+
+    }, false);
+
+
+    socket.on('msg', (data) => {
+      printmsg(data);
+    });
+
+    socket.on('user_join', (data) => {
+      printmsg(data);
+    });
+    printmsg("You have joined the chat as '" + handler + "'.");
+    socket.emit('user_join', handler);
+  </script>
+
+</body>
+
+</html>
